@@ -32,9 +32,12 @@ jobs:
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
         run: npm ci
-      - name: Test code
+      - name: Test code # default behavior of GitHub actions is, when 1 step fails, the entire job fails. In this case job shall not be aborted by failed step "Test code".
+        id: run-tests
         run: npm run test
-      - name: Upload test report
+      - name: Upload test report # upload makes only sense when tests fail. Therefore a condition is used. (If field allows to omit the ${{}} syntax)
+        # context steps allows to reach out to other ids / outcome returns a string as value
+        if: steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: test-report
