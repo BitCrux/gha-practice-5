@@ -37,7 +37,8 @@ jobs:
         run: npm run test
       - name: Upload test report # upload makes only sense when tests fail. Therefore a condition is used. (If field allows to omit the ${{}} syntax)
         # context steps allows to reach out to other ids / outcome returns a string as value
-        if: steps.run-tests.outcome == 'failure'
+        # to enforce that this step is executed when the condition is met, a function must be added. (failure()) / GHA has required special conditional functions https://docs.github.com/en/actions/learn-github-actions/expressions
+        if: failure() && steps.run-tests.outcome == 'failure'
         uses: actions/upload-artifact@v3
         with:
           name: test-report
