@@ -78,7 +78,7 @@ jobs:
       - name: Deploy
         run: echo "Deploying..."
   report:
-    needs: [lint, deploy]
+    needs: [lint, deploy] # job will execute after lint & deploy jobs, if any of them fail.
     if: failure()
     runs-on: ubuntu-latest
     steps:
