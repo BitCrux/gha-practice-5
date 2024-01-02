@@ -1,0 +1,21 @@
+name: Matrix Demo
+on: push
+jobs:
+  build:
+    # with a matrix you can run the same job with different configurations e.g different runners, different node config etc.
+    strategy:
+      matrix:
+        node-version: [12, 14, 16]
+        operating-system: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.operating-system }} # use expression syntax to dynamically configure operating system. Runs build job multiple times (once per array value).
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Install NodeJS
+        uses: actions/setup-node@v3
+        with:
+          node_version: ${{ matrix.node-version }}
+      - name: Install Dependencies
+        run: npm ci
+      - name: Build project
+        run: npm run build
