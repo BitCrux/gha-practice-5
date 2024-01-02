@@ -2,6 +2,7 @@ name: Matrix Demo
 on: push
 jobs:
   build:
+    continue-on-error: true # on job level this will cause GitHub actions to continue executing jobs, that are related to the matrix, even when some jobs fail.
     # with a matrix you can run the same job with different configurations e.g different runners, different node config etc.
     strategy:
       matrix:
