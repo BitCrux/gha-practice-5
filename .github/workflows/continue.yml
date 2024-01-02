@@ -1,0 +1,92 @@
+name: Continue Website Deployment
+on:
+  push:
+    branches:
+      - main
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Lint code
+        run: npm run lint
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Test code # default behavior of GitHub actions is, when 1 step fails, the entire job fails. In this case job shall not be aborted by failed step "Test code".
+        continue-on-error: true # hardcode true to avoid that this step stops the jobs.Expression ${{}} could also be used but tipically this is hardcoded because you know if it should stop or continue even if it fails.
+        id: run-tests
+        run: npm run test
+      - name: Upload test report
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-report
+          path: test.json
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Build website
+        id: build-website
+        run: npm run build
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: dist-files
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get build artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: dist-files
+      - name: Output contents
+        run: ls
+      - name: Deploy
+        run: echo "Deploying..."
+  report:
+    needs: [lint, deploy] # job will execute after lint & deploy jobs, if any of them fail.
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output information
+        run: |
+          echo "Something went wrong"
+          echo "${{ toJSON(github) }}" 
