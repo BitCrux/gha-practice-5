@@ -13,9 +13,11 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Lint code
         run: npm run lint
@@ -28,9 +30,11 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Test code # default behavior of GitHub actions is, when 1 step fails, the entire job fails. In this case job shall not be aborted by failed step "Test code".
         id: run-tests
@@ -53,9 +57,11 @@ jobs:
         id: cache
         uses: actions/cache@v3
         with:
-          path: ~/.npm
+          path: node_modules  # speed up caching by not caching the global npm folder, instead cache the local node_modules folder
           key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        # according to README documentation https://github.com/actions/cache, output of actions/cache@v3 cache-hit - A boolean value to indicate an exact match was found for the key.
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Build website
         id: build-website
