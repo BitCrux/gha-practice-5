@@ -74,6 +74,12 @@ jobs:
       artifact-name: dist-files
     # secrets:
       # some-secret: ${{ secrets.some-secret}} # use the secrets context to access the secret some-secret. Ofcourse some-secret must be defined somewhere.
+  print-deploy-result: # get the output of the workflow reusable.yml and print it
+    needs: deploy # must run after deploy job because the output value is used here
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print deploy output
+        run: echo "${{ needs.deploy.outputs.result }}" # use needs context to access the deploy job and its outputs. Access the custom defined "result" output.
   report:
     needs: [lint, deploy]
     if: failure()

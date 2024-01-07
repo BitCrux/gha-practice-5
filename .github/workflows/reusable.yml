@@ -7,11 +7,17 @@ on:
         required: false # true means workflow should fail if the input is not passed by other workflow (value mandatory); false workflow should not fail (value optional)
         default: dist # if input value is missing default value (dist) will be used
         type: string # a data type must be defined
+    outputs: # define the output of this workflow (think about functions, this would be the return value)
+      result:
+        description: The result of the deployment operation
+        value: ${{ jobs.deploy.outputs.outcome }} # Access the deploy jobs outputs. Access the output "outcome".
     # secrets: # used for secret values that are needed by the workflow
       # some-secret:
         # required: false # in this showcase the secret is not required, but if it is, then it must be provided by the workflow which uses this one
 jobs:
   deploy:
+    outputs: # define the job outputs
+        outcome: ${{ steps.set-result.outputs.step-result }} # custome definition "outcome" will get as value success from step "Set result output". Access the step id "set-result" and then the key "step-result" to get the value.
     runs-on: ubuntu-latest
     steps:
       - name: Get Code # to deploy code the artifacts are needed from other workflows and must be passed to this reusable workflow.
@@ -24,3 +30,6 @@ jobs:
         run: ls
       - name: Output information
         run: echo "Deploying & uploading..."
+      - name: Set result output
+        id: set-result
+        run: echo ""step-result"=success" >> $GITHUB_OUTPUT # step-result will be set to success and used as job outputs 
