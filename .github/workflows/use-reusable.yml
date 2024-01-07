@@ -69,6 +69,9 @@ jobs:
   deploy:
     needs: build
     uses: ./.github/workflows/reusable.yml # use the predefined workflow in .github/workflows/reusable.yml (yml file could also be in a other repo)
+    with:
+      # provide the input values for reusable.yml workflow
+      artifact-name: dist-files
   report:
     needs: [lint, deploy]
     if: failure()
