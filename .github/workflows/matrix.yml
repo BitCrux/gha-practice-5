@@ -5,7 +5,7 @@ jobs:
     continue-on-error: true # on job level this will cause GitHub actions to continue executing jobs, that are related to the matrix, even when some jobs fail.
     # with a matrix you can run the same job with different configurations e.g different runners, different node config etc.
     strategy:
-      matrix:
+      matrix: # run the same job with different configurations
         node-version: [12, 14, 16]
         operating-system: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.operating-system }} # use expression syntax to dynamically configure operating system. Runs build job multiple times (once per array value).
