@@ -72,6 +72,8 @@ jobs:
     with:
       # provide the input values for reusable.yml workflow
       artifact-name: dist-files
+    # secrets:
+      # some-secret: ${{ secrets.some-secret}} # use the secrets context to access the secret some-secret. Ofcourse some-secret must be defined somewhere.
   report:
     needs: [lint, deploy]
     if: failure()
