@@ -1,8 +1,23 @@
 name: Reusable Deploy
-on: workflow_call # make this workflow usable on other workflows with event workflow_call. Other workflows will run this workflow.
+on: 
+  workflow_call: # make this workflow usable on other workflows with event workflow_call. Other workflows will run this workflow.
+    inputs: # add any inputs this workflow needs (input values come from other workflows that use this workflow)
+      artifact-name: # custom name, any name could be used here for inputs (think of it as a function parameter name)
+        description: The name of the deployable artifact files
+        required: false # true means workflow should fail if the input is not passed by other workflow (value mandatory); false workflow should not fail (value optional)
+        default: dist # if input value is missing default value (dist) will be used
+        type: string # a data type must be defined
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
+      - name: Get Code # to deploy code the artifacts are needed from other workflows and must be passed to this reusable workflow.
+        uses: actions/download-artifact@v3
+        with:
+          # identifier defined in other workflow could be used (e. g. dist-files in use-reusable workflow -> Upload artifacts step) 
+          # to not depend on identifiers, make it dynamic with expression
+          name: ${{ inputs.artifact-name }} # use the inputs context to access the input value provided by other workflow
+      - name: List files
+        run: ls
       - name: Output information
         run: echo "Deploying & uploading..."
